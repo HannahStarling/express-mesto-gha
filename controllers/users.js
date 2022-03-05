@@ -25,8 +25,28 @@ const createUser = (req, res) => {
     });
 };
 
+const updateUser = (req, res) => {
+  const { name, about } = req.body;
+  User.findByIdAndUpdate(req.params.id, { name, about })
+    .then((user) => res.send({ name: user.name, about: user.about }))
+    .catch((err) => {
+      res.status(500).send({ message: err.message });
+    });
+};
+
+const updateUserAvatar = (req, res) => {
+  const { avatar } = req.body;
+  User.findByIdAndUpdate(req.params.id, { avatar })
+    .then((user) => res.send({ avatar: user.avatar }))
+    .catch((err) => {
+      res.status(500).send({ message: err.message });
+    });
+};
+
 module.exports = {
   getUsers,
   getUser,
   createUser,
+  updateUser,
+  updateUserAvatar,
 };
