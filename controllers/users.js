@@ -8,7 +8,6 @@ const {
 const getUsers = (req, res) => {
   User.find({})
     .orFail(new Error('Не найдено ни одного пользователя'))
-    .populate('user')
     .then((users) => res.send({ data: users }))
     .catch((err) => {
       res.status(ERR_DEFAULT).send({ message: err.message });

@@ -8,7 +8,7 @@ const {
 const getCards = (req, res) => {
   Card.find({})
     .orFail(new Error('Не найдено ни одной карточки'))
-    .populate('card')
+    .populate('user')
     .then((cards) => res.send({ data: cards }))
     .catch((err) => {
       res.status(ERR_DEFAULT).send({ message: err.message });
