@@ -1,19 +1,30 @@
 const Card = require('../models/card');
+const {
+  ERR_BAD_REQUEST,
+  ERR_DEFAULT,
+  ERR_NOT_FOUND,
+} = require('../errors/errors');
 
 const getCards = (req, res) => {
   Card.find({})
+    .orFail(new Error('Не найдено ни одной карточки'))
     .populate('card')
     .then((cards) => res.send({ data: cards }))
     .catch((err) => {
-      res.status(500).send({ message: `Произошла ошибка ${err.message}` });
+      res.status(ERR_DEFAULT).send({ message: err.message });
+      res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      res.status(ERR_NOT_FOUND).send({ message: err.message });
     });
 };
 
 const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.id)
+    .orFail(new Error('Карточка с указанным id не существует'))
     .then((user) => res.send({ data: user }))
     .catch((err) => {
-      res.status(500).send({ message: `Произошла ошибка ${err.message}` });
+      res.status(ERR_DEFAULT).send({ message: err.message });
+      res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      res.status(ERR_NOT_FOUND).send({ message: err.message });
     });
 };
 
@@ -22,11 +33,18 @@ const createCard = (req, res) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
+    .orFail(
+      new Error(
+        'Не удалось создать карточку, проверьте корректность вводимых данных'
+      )
+    )
     .then((card) => {
       res.send({ name: card.name, link: card.link, owner: card.owner });
     })
     .catch((err) => {
-      res.status(500).send({ message: `Произошла ошибка ${err.message}` });
+      res.status(ERR_DEFAULT).send({ message: err.message });
+      res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      res.status(ERR_NOT_FOUND).send({ message: err.message });
     });
 };
 
@@ -36,10 +54,12 @@ const likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true }
   )
-
+    .orFail(new Error('Не удалось поставить лайк, ошибка программы'))
     .then((likes) => res.send({ data: likes }))
     .catch((err) => {
-      res.status(500).send({ message: `Произошла ошибка ${err.message}` });
+      res.status(ERR_DEFAULT).send({ message: err.message });
+      res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      res.status(ERR_NOT_FOUND).send({ message: err.message });
     });
 };
 
@@ -49,9 +69,12 @@ const dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true }
   )
+    .orFail(new Error('Не удалось поставить дизлайк, ошибка программы'))
     .then((likes) => res.send({ data: likes }))
     .catch((err) => {
-      res.status(500).send({ message: `Произошла ошибка ${err.message}` });
+      res.status(ERR_DEFAULT).send({ message: err.message });
+      res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      res.status(ERR_NOT_FOUND).send({ message: err.message });
     });
 };
 
