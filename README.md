@@ -1,21 +1,20 @@
-[![Tests](https://github.com/yandex-praktikum/express-mesto-gha/actions/workflows/tests-13-sprint.yml/badge.svg)](https://github.com/yandex-praktikum/express-mesto-gha/actions/workflows/tests-13-sprint.yml) [![Tests](https://github.com/yandex-praktikum/express-mesto-gha/actions/workflows/tests-14-sprint.yml/badge.svg)](https://github.com/yandex-praktikum/express-mesto-gha/actions/workflows/tests-14-sprint.yml)
+[![Tests](https://github.com/yandex-praktikum/express-mesto-gha/actions/workflows/tests-13-sprint.yml/badge.svg)](https://github.com/HannahStarling/express-mesto-gha/actions/workflows/tests-13-sprint.yml) [![Tests](https://github.com/yandex-praktikum/express-mesto-gha/actions/workflows/tests-14-sprint.yml/badge.svg)](https://github.com/HannahStarling/express-mesto-gha/actions/workflows/tests-14-sprint.yml)
 
 # Проект Mesto фронтенд + бэкенд
 
-## Настройка бейджей статуса тестов
+## Стек технологий
 
-Перед началом работы над проектом рекомендуется исправить бейджи, отражающие статус прохождения тестов.
-Для этого замените разметку бейджей на следующий фрагмент, подставив вместо `HannahStarling` и `express-mesto-gha` соответствующие значения.
-
-[![Tests for sprint 13](https://github.com/HannahStarling/HannahStarling/actions/workflows/tests-13-sprint.yml/badge.svg)](https://github.com/HannahStarling/express-mesto-gha/actions/workflows/tests-13-sprint.yml)
-
-[![Tests for sprint 14](https://github.com/HannahStarling/HannahStarling/actions/workflows/tests-14-sprint.yml/badge.svg)](https://github.com/HannahStarling/express-mesto-gha/actions/workflows/tests-14-sprint.yml)
+- node.js
+- express.js
+- MongoDB
+- mongoose
 
 ## Директории
 
 `/routes` — папка с файлами роутера
 `/controllers` — папка с файлами контроллеров пользователя и карточки
 `/models` — папка с файлами описания схем пользователя и карточки
+`/errors` — папка с файлами описания ошибок и валидации
 
 Остальные директории вспомогательные, создаются при необходимости разработчиком
 
