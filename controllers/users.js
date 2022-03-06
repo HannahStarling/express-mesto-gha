@@ -8,7 +8,7 @@ const {
 const getUsers = (req, res) => {
   User.find({})
     .orFail(new Error('Не найдено ни одного пользователя'))
-    .then((users) => res.send({ data: users }))
+    .then((users) => res.send(users))
     .catch((err) => {
       res.status(ERR_DEFAULT).send({ message: err.message });
       res.status(ERR_BAD_REQUEST).send({ message: err.message });
@@ -19,7 +19,7 @@ const getUsers = (req, res) => {
 const getUser = (req, res) => {
   User.findById(req.params.id)
     .orFail(new Error('Запрашиваемый пользователь не найден (некорректный id)'))
-    .then((user) => res.send({ data: user }))
+    .then((user) => res.send(user))
     .catch((err) => {
       res.status(ERR_DEFAULT).send({ message: err.message });
       res.status(ERR_BAD_REQUEST).send({ message: err.message });
