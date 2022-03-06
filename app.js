@@ -19,7 +19,7 @@ app.use((req, res, next) => {
 
   next();
 });
-app.use('/', userRouter);
-app.use('/', cardRouter);
+app.use(userRouter);
+app.use(cardRouter);
 
 app.listen(PORT);
