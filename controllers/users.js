@@ -10,9 +10,13 @@ const getUsers = (req, res) => {
     .orFail(new Error('Не найдено ни одного пользователя'))
     .then((users) => res.send(users))
     .catch((err) => {
+      if (err.status === ERR_BAD_REQUEST) {
+        res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      }
+      if (err.status === ERR_NOT_FOUND) {
+        res.status(ERR_NOT_FOUND).send({ message: err.message });
+      }
       res.status(ERR_DEFAULT).send({ message: err.message });
-      res.status(ERR_BAD_REQUEST).send({ message: err.message });
-      res.status(ERR_NOT_FOUND).send({ message: err.message });
     });
 };
 
@@ -21,9 +25,13 @@ const getUser = (req, res) => {
     .orFail(new Error('Запрашиваемый пользователь не найден (некорректный id)'))
     .then((user) => res.send(user))
     .catch((err) => {
+      if (err.status === ERR_BAD_REQUEST) {
+        res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      }
+      if (err.status === ERR_NOT_FOUND) {
+        res.status(ERR_NOT_FOUND).send({ message: err.message });
+      }
       res.status(ERR_DEFAULT).send({ message: err.message });
-      res.status(ERR_BAD_REQUEST).send({ message: err.message });
-      res.status(ERR_NOT_FOUND).send({ message: err.message });
     });
 };
 
@@ -40,9 +48,13 @@ const createUser = (req, res) => {
       res.send({ name: user.name, about: user.about, avatar: user.avatar });
     })
     .catch((err) => {
+      if (err.status === ERR_BAD_REQUEST) {
+        res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      }
+      if (err.status === ERR_NOT_FOUND) {
+        res.status(ERR_NOT_FOUND).send({ message: err.message });
+      }
       res.status(ERR_DEFAULT).send({ message: err.message });
-      res.status(ERR_BAD_REQUEST).send({ message: err.message });
-      res.status(ERR_NOT_FOUND).send({ message: err.message });
     });
 };
 
@@ -56,9 +68,13 @@ const updateUser = (req, res) => {
     )
     .then((user) => res.send({ name: user.name, about: user.about }))
     .catch((err) => {
+      if (err.status === ERR_BAD_REQUEST) {
+        res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      }
+      if (err.status === ERR_NOT_FOUND) {
+        res.status(ERR_NOT_FOUND).send({ message: err.message });
+      }
       res.status(ERR_DEFAULT).send({ message: err.message });
-      res.status(ERR_BAD_REQUEST).send({ message: err.message });
-      res.status(ERR_NOT_FOUND).send({ message: err.message });
     });
 };
 
@@ -72,9 +88,13 @@ const updateUserAvatar = (req, res) => {
     )
     .then((user) => res.send({ avatar: user.avatar }))
     .catch((err) => {
+      if (err.status === ERR_BAD_REQUEST) {
+        res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      }
+      if (err.status === ERR_NOT_FOUND) {
+        res.status(ERR_NOT_FOUND).send({ message: err.message });
+      }
       res.status(ERR_DEFAULT).send({ message: err.message });
-      res.status(ERR_BAD_REQUEST).send({ message: err.message });
-      res.status(ERR_NOT_FOUND).send({ message: err.message });
     });
 };
 

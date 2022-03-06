@@ -11,9 +11,13 @@ const getCards = (req, res) => {
     .populate('user')
     .then((cards) => res.send(cards))
     .catch((err) => {
+      if (err.status === ERR_BAD_REQUEST) {
+        res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      }
+      if (err.status === ERR_NOT_FOUND) {
+        res.status(ERR_NOT_FOUND).send({ message: err.message });
+      }
       res.status(ERR_DEFAULT).send({ message: err.message });
-      res.status(ERR_BAD_REQUEST).send({ message: err.message });
-      res.status(ERR_NOT_FOUND).send({ message: err.message });
     });
 };
 
@@ -22,9 +26,13 @@ const deleteCard = (req, res) => {
     .orFail(new Error('Карточка с указанным id не существует'))
     .then((card) => res.send(card))
     .catch((err) => {
+      if (err.status === ERR_BAD_REQUEST) {
+        res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      }
+      if (err.status === ERR_NOT_FOUND) {
+        res.status(ERR_NOT_FOUND).send({ message: err.message });
+      }
       res.status(ERR_DEFAULT).send({ message: err.message });
-      res.status(ERR_BAD_REQUEST).send({ message: err.message });
-      res.status(ERR_NOT_FOUND).send({ message: err.message });
     });
 };
 
@@ -42,9 +50,13 @@ const createCard = (req, res) => {
       res.send({ name: card.name, link: card.link, owner: card.owner });
     })
     .catch((err) => {
+      if (err.status === ERR_BAD_REQUEST) {
+        res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      }
+      if (err.status === ERR_NOT_FOUND) {
+        res.status(ERR_NOT_FOUND).send({ message: err.message });
+      }
       res.status(ERR_DEFAULT).send({ message: err.message });
-      res.status(ERR_BAD_REQUEST).send({ message: err.message });
-      res.status(ERR_NOT_FOUND).send({ message: err.message });
     });
 };
 
@@ -57,9 +69,13 @@ const likeCard = (req, res) => {
     .orFail(new Error('Не удалось поставить лайк, ошибка программы'))
     .then((likes) => res.send(likes))
     .catch((err) => {
+      if (err.status === ERR_BAD_REQUEST) {
+        res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      }
+      if (err.status === ERR_NOT_FOUND) {
+        res.status(ERR_NOT_FOUND).send({ message: err.message });
+      }
       res.status(ERR_DEFAULT).send({ message: err.message });
-      res.status(ERR_BAD_REQUEST).send({ message: err.message });
-      res.status(ERR_NOT_FOUND).send({ message: err.message });
     });
 };
 
@@ -72,9 +88,13 @@ const dislikeCard = (req, res) => {
     .orFail(new Error('Не удалось поставить дизлайк, ошибка программы'))
     .then((likes) => res.send(likes))
     .catch((err) => {
+      if (err.status === ERR_BAD_REQUEST) {
+        res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      }
+      if (err.status === ERR_NOT_FOUND) {
+        res.status(ERR_NOT_FOUND).send({ message: err.message });
+      }
       res.status(ERR_DEFAULT).send({ message: err.message });
-      res.status(ERR_BAD_REQUEST).send({ message: err.message });
-      res.status(ERR_NOT_FOUND).send({ message: err.message });
     });
 };
 
