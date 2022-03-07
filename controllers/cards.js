@@ -7,32 +7,30 @@ const {
 
 const getCards = (req, res) => {
   Card.find({})
-    .orFail(new Error('Не найдено ни одной карточки'))
-    .populate('user')
-    .then((cards) => res.send(cards))
+    .then((cards) => res.status(200).send(cards))
     .catch((err) => {
-      if (err.status === ERR_BAD_REQUEST) {
-        res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      if (err.name === 'CastError') {
+        res.status(ERR_BAD_REQUEST).send({ message: 'Что-то пошло не так...' });
       }
-      if (err.status === ERR_NOT_FOUND) {
-        res.status(ERR_NOT_FOUND).send({ message: err.message });
-      }
-      res.status(ERR_DEFAULT).send({ message: err.message });
+
+      res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так...' });
     });
 };
 
 const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.id)
-    .orFail(new Error('Карточка с указанным id не существует'))
-    .then((card) => res.send(card))
+    .orFail(() => {
+      res.status(ERR_NOT_FOUND).send({
+        message: 'Карточка с указанным id не существует',
+      });
+    })
+    .then((card) => res.status(200).send(card))
     .catch((err) => {
-      if (err.status === ERR_BAD_REQUEST) {
-        res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      if (err.name === 'CastError') {
+        res.status(ERR_BAD_REQUEST).send({ message: 'Что-то пошло не так...' });
       }
-      if (err.status === ERR_NOT_FOUND) {
-        res.status(ERR_NOT_FOUND).send({ message: err.message });
-      }
-      res.status(ERR_DEFAULT).send({ message: err.message });
+
+      res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так...' });
     });
 };
 
@@ -41,22 +39,20 @@ const createCard = (req, res) => {
   const owner = req.user._id;
 
   Card.create({ name, link, owner })
-    .orFail(
-      new Error(
-        'Не удалось создать карточку, проверьте корректность вводимых данных'
-      )
-    )
     .then((card) => {
-      res.send({ name: card.name, link: card.link, owner: card.owner });
+      res.status(200).send({
+        name: card.name,
+        link: card.link,
+        owner: card.owner,
+        _id: card._id,
+      });
     })
     .catch((err) => {
-      if (err.status === ERR_BAD_REQUEST) {
-        res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
+        res.status(ERR_BAD_REQUEST).send({ message: 'Что-то пошло не так...' });
       }
-      if (err.status === ERR_NOT_FOUND) {
-        res.status(ERR_NOT_FOUND).send({ message: err.message });
-      }
-      res.status(ERR_DEFAULT).send({ message: err.message });
+
+      res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так...' });
     });
 };
 
@@ -66,16 +62,18 @@ const likeCard = (req, res) => {
     { $addToSet: { likes: req.user._id } },
     { new: true }
   )
-    .orFail(new Error('Не удалось поставить лайк, ошибка программы'))
-    .then((likes) => res.send(likes))
+    .orFail(() => {
+      res.status(ERR_NOT_FOUND).send({
+        message: 'Карточка с указанным id не существует',
+      });
+    })
+    .then((likes) => res.status(200).send(likes))
     .catch((err) => {
-      if (err.status === ERR_BAD_REQUEST) {
-        res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
+        res.status(ERR_BAD_REQUEST).send({ message: 'Что-то пошло не так...' });
       }
-      if (err.status === ERR_NOT_FOUND) {
-        res.status(ERR_NOT_FOUND).send({ message: err.message });
-      }
-      res.status(ERR_DEFAULT).send({ message: err.message });
+
+      res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так...' });
     });
 };
 
@@ -85,16 +83,18 @@ const dislikeCard = (req, res) => {
     { $pull: { likes: req.user._id } },
     { new: true }
   )
-    .orFail(new Error('Не удалось поставить дизлайк, ошибка программы'))
+    .orFail(() => {
+      res.status(ERR_NOT_FOUND).send({
+        message: 'Карточка с указанным id не существует',
+      });
+    })
     .then((likes) => res.send(likes))
     .catch((err) => {
-      if (err.status === ERR_BAD_REQUEST) {
-        res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
+        res.status(ERR_BAD_REQUEST).send({ message: 'Что-то пошло не так...' });
       }
-      if (err.status === ERR_NOT_FOUND) {
-        res.status(ERR_NOT_FOUND).send({ message: err.message });
-      }
-      res.status(ERR_DEFAULT).send({ message: err.message });
+
+      res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так...' });
     });
 };
 

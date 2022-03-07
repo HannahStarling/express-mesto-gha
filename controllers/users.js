@@ -5,97 +5,113 @@ const {
   ERR_NOT_FOUND,
 } = require('../errors/errors');
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
-    .orFail(new Error('Не найдено ни одного пользователя'))
-    .then((users) => res.send(users))
+    .orFail(() => {
+      res.status(ERR_NOT_FOUND).send({
+        message: 'Не найдено ни одного пользователя',
+      });
+    })
+    .then((users) => res.status(200).send(users))
     .catch((err) => {
-      if (err.status === ERR_BAD_REQUEST) {
-        res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      if (err.name === 'CastError') {
+        res.status(ERR_BAD_REQUEST).send({ message: 'Что-то пошло не так...' });
       }
-      if (err.status === ERR_NOT_FOUND) {
-        res.status(ERR_NOT_FOUND).send({ message: err.message });
-      }
-      res.status(ERR_DEFAULT).send({ message: err.message });
-    });
+      res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так...' });
+    })
+    .catch(next);
 };
 
-const getUser = (req, res) => {
+const getUser = (req, res, next) => {
   User.findById(req.params.id)
-    .orFail(new Error('Запрашиваемый пользователь не найден (некорректный id)'))
-    .then((user) => res.send(user))
+    .orFail(() => {
+      res.status(ERR_NOT_FOUND).send({
+        message: 'Запрашиваемый пользователь не найден (некорректный id)',
+      });
+    })
+    .then((user) => res.status(200).send(user))
     .catch((err) => {
-      if (err.status === ERR_BAD_REQUEST) {
-        res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      if (err.name === 'CastError') {
+        res.status(ERR_BAD_REQUEST).send({ message: 'Что-то пошло не так...' });
       }
-      if (err.status === ERR_NOT_FOUND) {
-        res.status(ERR_NOT_FOUND).send({ message: err.message });
-      }
-      res.status(ERR_DEFAULT).send({ message: err.message });
-    });
+      res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так...' });
+    })
+    .catch(next);
 };
 
 const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
 
   User.create({ name, about, avatar })
-    .orFail(
-      new Error(
-        'Не удалось создать пользователя, проверьте корректность вводимых данных'
-      )
-    )
     .then((user) => {
-      res.send({ name: user.name, about: user.about, avatar: user.avatar });
+      res.status(200).send({
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        _id: user._id,
+      });
     })
     .catch((err) => {
-      if (err.status === ERR_BAD_REQUEST) {
-        res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
+        res.status(ERR_BAD_REQUEST).send({ message: 'Что-то пошло не так...' });
       }
-      if (err.status === ERR_NOT_FOUND) {
-        res.status(ERR_NOT_FOUND).send({ message: err.message });
-      }
-      res.status(ERR_DEFAULT).send({ message: err.message });
+      res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так...' });
     });
 };
 
 const updateUser = (req, res) => {
   const { name, about } = req.body;
-  User.findByIdAndUpdate(req.params.id, { name, about })
-    .orFail(
-      new Error(
-        'Не удалось обновить информацию пользователя, проверьте корректность вводимых данных'
-      )
-    )
-    .then((user) => res.send({ name: user.name, about: user.about }))
+  User.findByIdAndUpdate(
+    req.user._id,
+    { name, about },
+    {
+      new: true,
+      runValidators: true,
+    }
+  )
+    .orFail(() => {
+      res.status(ERR_NOT_FOUND).send({
+        message:
+          'Не удалось обновить информацию, проверьте корректность вводимых данных',
+      });
+    })
+    .then((user) => {
+      res.status(200).send({ name: user.name, about: user.about });
+    })
     .catch((err) => {
-      if (err.status === ERR_BAD_REQUEST) {
-        res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
+        res.status(ERR_BAD_REQUEST).send({ message: 'Что-то пошло не так...' });
       }
-      if (err.status === ERR_NOT_FOUND) {
-        res.status(ERR_NOT_FOUND).send({ message: err.message });
-      }
-      res.status(ERR_DEFAULT).send({ message: err.message });
+
+      res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так...' });
     });
 };
 
-const updateUserAvatar = (req, res) => {
+const updateUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate(req.params.id, { avatar })
-    .orFail(
-      new Error(
-        'Не удалось обновить аватар, проверьте корректность вводимых данных'
-      )
-    )
-    .then((user) => res.send({ avatar: user.avatar }))
+  User.findByIdAndUpdate(
+    req.user._id,
+    { avatar },
+    {
+      new: true,
+      runValidators: true,
+    }
+  )
+    .orFail(() => {
+      res.status(ERR_NOT_FOUND).send({
+        message:
+          'Не удалось обновить аватар, проверьте корректность вводимых данных',
+      });
+    })
+    .then((user) => res.status(200).send({ avatar: user.avatar }))
     .catch((err) => {
-      if (err.status === ERR_BAD_REQUEST) {
-        res.status(ERR_BAD_REQUEST).send({ message: err.message });
+      if (err.name === 'CastError' || err.name === 'ValidationError') {
+        res.status(ERR_BAD_REQUEST).send({ message: 'Что-то пошло не так...' });
       }
-      if (err.status === ERR_NOT_FOUND) {
-        res.status(ERR_NOT_FOUND).send({ message: err.message });
-      }
-      res.status(ERR_DEFAULT).send({ message: err.message });
-    });
+
+      res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так...' });
+    })
+    .catch(next);
 };
 
 module.exports = {
