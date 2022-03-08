@@ -8,11 +8,7 @@ const {
 const getCards = (req, res) => {
   Card.find({})
     .then((cards) => res.status(200).send(cards))
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        res.status(ERR_BAD_REQUEST).send({ message: 'Что-то пошло не так...' });
-      }
-
+    .catch(() => {
       res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так...' });
     });
 };
@@ -20,17 +16,23 @@ const getCards = (req, res) => {
 const deleteCard = (req, res) => {
   Card.findByIdAndRemove(req.params.id)
     .orFail(() => {
-      res.status(ERR_NOT_FOUND).send({
-        message: 'Карточка с указанным id не существует',
-      });
+      throw new Error('NotFound');
     })
     .then((card) => res.status(200).send(card))
     .catch((err) => {
       if (err.name === 'CastError') {
-        res.status(ERR_BAD_REQUEST).send({ message: 'Что-то пошло не так...' });
+        return res.status(ERR_BAD_REQUEST).send({
+          message: 'Введены некорректные данные, невозможно удалить карточку.',
+        });
       }
-
-      res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так...' });
+      if (err.message === 'NotFound') {
+        return res.status(ERR_NOT_FOUND).send({
+          message: 'Карточка с указанным id не существует',
+        });
+      }
+      return res
+        .status(ERR_DEFAULT)
+        .send({ message: 'Что-то пошло не так...' });
     });
 };
 
@@ -49,10 +51,14 @@ const createCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        res.status(ERR_BAD_REQUEST).send({ message: 'Что-то пошло не так...' });
+        return res.status(ERR_BAD_REQUEST).send({
+          message:
+            'Введены некорректные данные, невозможно создать карточку, проверьте название и ссылку.',
+        });
       }
-
-      res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так...' });
+      return res
+        .status(ERR_DEFAULT)
+        .send({ message: 'Что-то пошло не так...' });
     });
 };
 
@@ -60,20 +66,27 @@ const likeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.id,
     { $addToSet: { likes: req.user._id } },
-    { new: true }
+    { new: true },
   )
     .orFail(() => {
-      res.status(ERR_NOT_FOUND).send({
-        message: 'Карточка с указанным id не существует',
-      });
+      throw new Error('NotFound');
     })
     .then((likes) => res.status(200).send(likes))
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        res.status(ERR_BAD_REQUEST).send({ message: 'Что-то пошло не так...' });
+        return res.status(ERR_BAD_REQUEST).send({
+          message:
+            'Введены некорректные данные, невозможно поставить лайк до устранения ошибки.',
+        });
       }
-
-      res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так...' });
+      if (err.message === 'NotFound') {
+        return res.status(ERR_NOT_FOUND).send({
+          message: 'Карточка с указанным id не существует',
+        });
+      }
+      return res
+        .status(ERR_DEFAULT)
+        .send({ message: 'Что-то пошло не так...' });
     });
 };
 
@@ -81,20 +94,27 @@ const dislikeCard = (req, res) => {
   Card.findByIdAndUpdate(
     req.params.id,
     { $pull: { likes: req.user._id } },
-    { new: true }
+    { new: true },
   )
     .orFail(() => {
-      res.status(ERR_NOT_FOUND).send({
-        message: 'Карточка с указанным id не существует',
-      });
+      throw new Error('NotFound');
     })
     .then((likes) => res.send(likes))
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        res.status(ERR_BAD_REQUEST).send({ message: 'Что-то пошло не так...' });
+        return res.status(ERR_BAD_REQUEST).send({
+          message:
+            'Введены некорректные данные, невозможно убрать лайк до устранения ошибки.',
+        });
       }
-
-      res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так...' });
+      if (err.message === 'NotFound') {
+        return res.status(ERR_NOT_FOUND).send({
+          message: 'Карточка с указанным id не существует',
+        });
+      }
+      return res
+        .status(ERR_DEFAULT)
+        .send({ message: 'Что-то пошло не так...' });
     });
 };
 
