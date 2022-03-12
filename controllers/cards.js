@@ -14,11 +14,19 @@ const getCards = (req, res) => {
 };
 
 const deleteCard = (req, res) => {
-  Card.findByIdAndRemove(req.params.id)
+  Card.findById(req.params._id)
     .orFail(() => {
       throw new Error('NotFound');
     })
-    .then((card) => res.status(200).send(card))
+    .then(({ owner }) => {
+      if (owner.toString() === req.user._id) {
+        Card.findByIdAndRemove(req.params.id).then((card) => {
+          res.status(200).send(card);
+        });
+      } else {
+        res.status(430).send({ message: 'Недостаточно прав!' });
+      }
+    })
     .catch((err) => {
       if (err.name === 'CastError') {
         return res.status(ERR_BAD_REQUEST).send({
