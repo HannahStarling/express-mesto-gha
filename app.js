@@ -11,13 +11,6 @@ const app = express();
 
 app.use(express.json()); /* bodyParser in framework */
 
-app.use((req, res, next) => {
-  req.user = {
-    _id: '622359413c7d30d00f071c74',
-  };
-
-  next();
-});
 app.post('/signin', login);
 app.post('/signup', createUser);
 app.use(auth, userRouter);
