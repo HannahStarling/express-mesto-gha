@@ -1,4 +1,5 @@
 const bcrypt = require('bcryptjs');
+const jwt = require('jsonwebtoken');
 const User = require('../models/user');
 const {
   ERR_BAD_REQUEST,
@@ -43,9 +44,7 @@ const getUser = (req, res) => {
 };
 
 const createUser = (req, res) => {
-  const {
-    name, about, avatar, email, password,
-  } = req.body;
+  const { name, about, avatar, email, password } = req.body;
 
   bcrypt
     .hash(password, 10)
@@ -87,7 +86,7 @@ const updateUser = (req, res) => {
     {
       new: true,
       runValidators: true,
-    },
+    }
   )
     .orFail(() => {
       throw new Error('NotFound');
@@ -121,7 +120,7 @@ const updateUserAvatar = (req, res) => {
     {
       new: true,
       runValidators: true,
-    },
+    }
   )
     .orFail(() => {
       throw new Error('NotFound');
@@ -145,10 +144,29 @@ const updateUserAvatar = (req, res) => {
     });
 };
 
+const login = (req, res) => {
+  const { email, password } = req.body;
+  return User.findUserByCredentials(email, password)
+    .then((user) => {
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', {
+        expiresIn: '7d',
+      });
+      res.cookie('jwt', token, {
+        maxAge: '7d',
+        httpOnly: true,
+        sameSite: true,
+      });
+    })
+    .catch(() => {
+      res.status(401).send({ message: 'Необходимо авторизироваться' });
+    });
+};
+
 module.exports = {
   getUsers,
   getUser,
   createUser,
   updateUser,
   updateUserAvatar,
+  login,
 };
