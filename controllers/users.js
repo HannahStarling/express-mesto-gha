@@ -18,9 +18,6 @@ const getUsers = (req, res) => {
 const getUser = (req, res) => {
   User.findById(req.params.id)
     .orFail(() => {
-      throw new Error('NotFound');
-    })
-    .orFail(() => {
       res.status(ERR_NOT_FOUND).send({
         message: 'Запрашиваемый пользователь не найден (некорректный id)',
       });
@@ -35,6 +32,31 @@ const getUser = (req, res) => {
       if (err.message === 'NotFound') {
         return res.status(ERR_NOT_FOUND).send({
           message: 'Запрашиваемый пользователь не найден (некорректный id)',
+        });
+      }
+      return res
+        .status(ERR_DEFAULT)
+        .send({ message: 'Что-то пошло не так...' });
+    });
+};
+
+const getCurrentUser = (req, res) => {
+  User.findById(_id)
+    .orFail(() => {
+      res.status(ERR_NOT_FOUND).send({
+        message: 'Запрашиваемый пользователь не найден (некорректный id)',
+      });
+    })
+    .then((user) => res.status(200).send(user))
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        return res.status(ERR_BAD_REQUEST).send({
+          message: 'Пользователь не найден.',
+        });
+      }
+      if (err.message === 'NotFound') {
+        return res.status(ERR_NOT_FOUND).send({
+          message: 'Запрашиваемый пользователь не найден',
         });
       }
       return res
@@ -169,4 +191,5 @@ module.exports = {
   updateUser,
   updateUserAvatar,
   login,
+  getCurrentUser,
 };
