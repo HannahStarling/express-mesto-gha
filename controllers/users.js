@@ -41,7 +41,7 @@ const getUser = (req, res) => {
 };
 
 const getCurrentUser = (req, res) => {
-  User.findById(_id)
+  User.findById(req.user._id)
     .orFail(() => {
       res.status(ERR_NOT_FOUND).send({
         message: 'Запрашиваемый пользователь не найден (некорректный id)',
