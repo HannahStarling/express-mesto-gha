@@ -77,14 +77,13 @@ const createUser = (req, res) => {
         avatar,
         email,
         password: hash,
-      });
-    })
-    .then((user) => {
-      res.status(200).send({
-        name: user.name,
-        about: user.about,
-        avatar: user.avatar,
-        _id: user._id,
+      }).then((user) => {
+        res.status(200).send({
+          name: user.name,
+          about: user.about,
+          avatar: user.avatar,
+          _id: user._id,
+        });
       });
     })
     .catch((err) => {
@@ -168,19 +167,22 @@ const updateUserAvatar = (req, res) => {
 
 const login = (req, res) => {
   const { email, password } = req.body;
-  return User.findUserByCredentials(email, password)
+  User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', {
         expiresIn: '7d',
       });
-      res.cookie('jwt', token, {
-        maxAge: '7d',
-        httpOnly: true,
-        sameSite: true,
-      });
+      res
+        .cookie('jwt', token, {
+          expires: new Date(Date.now() + 7 * 24 * 3600000),
+          httpOnly: true,
+          sameSite: true,
+        })
+        .status(200)
+        .send({ message: 'Авторизация прошла успешно!' });
     })
-    .catch(() => {
-      res.status(401).send({ message: 'Необходимо авторизироваться' });
+    .catch((err) => {
+      res.status(401).send({ message: err.message });
     });
 };
 

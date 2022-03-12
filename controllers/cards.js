@@ -14,7 +14,7 @@ const getCards = (req, res) => {
 };
 
 const deleteCard = (req, res) => {
-  Card.findById(req.params._id)
+  Card.findById(req.params.id)
     .orFail(() => {
       throw new Error('NotFound');
     })
@@ -45,6 +45,7 @@ const deleteCard = (req, res) => {
 };
 
 const createCard = (req, res) => {
+  console.dir(req.headers);
   const { name, link } = req.body;
   const owner = req.user._id;
 
