@@ -5,7 +5,7 @@ const errorHandler = (err, req, res, next) => {
   if (err instanceof ApiError) {
     return res.status(err.status).json({ message: err.message });
   }
-  return res.status(500).json({ message: `Ошибка на стороне сервера ${err}` });
+  return res.status(500).json({ message: `На сервере произошла ошибка` });
 };
 
 module.exports = { errorHandler };
