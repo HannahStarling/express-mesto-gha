@@ -1,22 +1,19 @@
+const { ApiError } = require('../errors/ApiError');
 const Card = require('../models/card');
-const {
-  ERR_BAD_REQUEST,
-  ERR_DEFAULT,
-  ERR_NOT_FOUND,
-} = require('../errors/errors');
 
-const getCards = (req, res) => {
+const getCards = (req, res, next) => {
   Card.find({})
     .then((cards) => res.status(200).send(cards))
     .catch(() => {
-      res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так...' });
-    });
+      throw ApiError.iternal();
+    })
+    .catch(next);
 };
 
-const deleteCard = (req, res) => {
+const deleteCard = (req, res, next) => {
   Card.findById(req.params.id)
     .orFail(() => {
-      throw new Error('NotFound');
+      throw ApiError.notFound('Карточка с указанным id не существует');
     })
     .then(({ owner }) => {
       if (owner.toString() === req.user._id) {
@@ -24,28 +21,21 @@ const deleteCard = (req, res) => {
           res.status(200).send(card);
         });
       } else {
-        res.status(430).send({ message: 'Недостаточно прав!' });
+        throw ApiError.forbidden();
       }
     })
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(ERR_BAD_REQUEST).send({
-          message: 'Введены некорректные данные, невозможно удалить карточку.',
-        });
+        throw ApiError.badRequest(
+          'Введены некорректные данные, невозможно удалить карточку.'
+        );
       }
-      if (err.message === 'NotFound') {
-        return res.status(ERR_NOT_FOUND).send({
-          message: 'Карточка с указанным id не существует',
-        });
-      }
-      return res
-        .status(ERR_DEFAULT)
-        .send({ message: 'Что-то пошло не так...' });
-    });
+      throw ApiError.iternal();
+    })
+    .catch(next);
 };
 
-const createCard = (req, res) => {
-  console.dir(req.headers);
+const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
 
@@ -60,71 +50,55 @@ const createCard = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        return res.status(ERR_BAD_REQUEST).send({
-          message:
-            'Введены некорректные данные, невозможно создать карточку, проверьте название и ссылку.',
-        });
+        throw ApiError.badRequest(
+          'Введены некорректные данные, невозможно создать карточку, проверьте название и ссылку.'
+        );
       }
-      return res
-        .status(ERR_DEFAULT)
-        .send({ message: 'Что-то пошло не так...' });
-    });
+      throw ApiError.iternal();
+    })
+    .catch(next);
 };
 
-const likeCard = (req, res) => {
+const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.id,
     { $addToSet: { likes: req.user._id } },
     { new: true }
   )
     .orFail(() => {
-      throw new Error('NotFound');
+      throw ApiError.notFound('Карточка с указанным id не существует');
     })
     .then((likes) => res.status(200).send(likes))
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        return res.status(ERR_BAD_REQUEST).send({
-          message:
-            'Введены некорректные данные, невозможно поставить лайк до устранения ошибки.',
-        });
+        throw ApiError.badRequest(
+          'Введены некорректные данные, невозможно поставить лайк до устранения ошибки.'
+        );
       }
-      if (err.message === 'NotFound') {
-        return res.status(ERR_NOT_FOUND).send({
-          message: 'Карточка с указанным id не существует',
-        });
-      }
-      return res
-        .status(ERR_DEFAULT)
-        .send({ message: 'Что-то пошло не так...' });
-    });
+      throw ApiError.iternal();
+    })
+    .catch(next);
 };
 
-const dislikeCard = (req, res) => {
+const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.id,
     { $pull: { likes: req.user._id } },
     { new: true }
   )
     .orFail(() => {
-      throw new Error('NotFound');
+      throw ApiError.notFound('Карточка с указанным id не существует');
     })
     .then((likes) => res.send(likes))
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        return res.status(ERR_BAD_REQUEST).send({
-          message:
-            'Введены некорректные данные, невозможно убрать лайк до устранения ошибки.',
-        });
+        throw ApiError.badRequest(
+          'Введены некорректные данные, невозможно убрать лайк до устранения ошибки.'
+        );
       }
-      if (err.message === 'NotFound') {
-        return res.status(ERR_NOT_FOUND).send({
-          message: 'Карточка с указанным id не существует',
-        });
-      }
-      return res
-        .status(ERR_DEFAULT)
-        .send({ message: 'Что-то пошло не так...' });
-    });
+      throw ApiError.iternal();
+    })
+    .catch(next);
 };
 
 module.exports = {

@@ -1,71 +1,52 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-const {
-  ERR_BAD_REQUEST,
-  ERR_DEFAULT,
-  ERR_NOT_FOUND,
-} = require('../errors/errors');
+const { ApiError } = require('../errors/ApiError');
 
-const getUsers = (req, res) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((users) => res.status(200).send(users))
     .catch(() => {
-      res.status(ERR_DEFAULT).send({ message: 'Что-то пошло не так...' });
-    });
+      throw ApiError.iternal();
+    })
+    .catch(next);
 };
 
-const getUser = (req, res) => {
+const getUser = (req, res, next) => {
   User.findById(req.params.id)
     .orFail(() => {
-      res.status(ERR_NOT_FOUND).send({
-        message: 'Запрашиваемый пользователь не найден (некорректный id)',
-      });
+      throw ApiError.notFound(
+        'Запрашиваемый пользователь не найден (некорректный id)'
+      );
     })
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(ERR_BAD_REQUEST).send({
-          message: 'Пользователь с указанным id не существует.',
-        });
+        throw ApiError.badRequest('Пользователь с указанным id не существует.');
       }
-      if (err.message === 'NotFound') {
-        return res.status(ERR_NOT_FOUND).send({
-          message: 'Запрашиваемый пользователь не найден (некорректный id)',
-        });
-      }
-      return res
-        .status(ERR_DEFAULT)
-        .send({ message: 'Что-то пошло не так...' });
-    });
+      throw ApiError.iternal();
+    })
+    .catch(next);
 };
 
-const getCurrentUser = (req, res) => {
+const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(() => {
-      res.status(ERR_NOT_FOUND).send({
-        message: 'Запрашиваемый пользователь не найден (некорректный id)',
-      });
+      throw ApiError.notFound(
+        'Запрашиваемый пользователь не найден (некорректный id)'
+      );
     })
     .then((user) => res.status(200).send(user))
     .catch((err) => {
       if (err.name === 'CastError') {
-        return res.status(ERR_BAD_REQUEST).send({
-          message: 'Пользователь не найден.',
-        });
+        throw ApiError.badRequest('Что-то пошло не так...');
       }
-      if (err.message === 'NotFound') {
-        return res.status(ERR_NOT_FOUND).send({
-          message: 'Запрашиваемый пользователь не найден',
-        });
-      }
-      return res
-        .status(ERR_DEFAULT)
-        .send({ message: 'Что-то пошло не так...' });
-    });
+      throw ApiError.iternal();
+    })
+    .catch(next);
 };
 
-const createUser = (req, res) => {
+const createUser = (req, res, next) => {
   const { name, about, avatar, email, password } = req.body;
 
   bcrypt
@@ -88,18 +69,19 @@ const createUser = (req, res) => {
     })
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        return res.status(ERR_BAD_REQUEST).send({
-          message:
-            'Введены некорректные данные, невозможно создать пользователя, проверьте имя, описание и аватар на валидность.',
-        });
+        throw ApiError.badRequest(
+          'Введены некорректные данные, невозможно создать пользователя, проверьте имя, описание и аватар на валидность.'
+        );
       }
-      return res
-        .status(ERR_DEFAULT)
-        .send({ message: 'Что-то пошло не так...' });
-    });
+      if (err.name === 'MongoError' && err.code === 11000) {
+        throw ApiError.conflict('Пользователь уже зарегестрирован.');
+      }
+      throw ApiError.iternal();
+    })
+    .catch(next);
 };
 
-const updateUser = (req, res) => {
+const updateUser = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -110,30 +92,25 @@ const updateUser = (req, res) => {
     }
   )
     .orFail(() => {
-      throw new Error('NotFound');
+      throw ApiError.notFound(
+        'Запрашиваемый пользователь не найден (некорректный id)'
+      );
     })
     .then((user) => {
       res.status(200).send({ name: user.name, about: user.about });
     })
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        return res.status(ERR_BAD_REQUEST).send({
-          message:
-            'Введены некорректные данные, невозможно обновить данные пользователя, проверьте корректность указанных имени и описания.',
-        });
+        throw ApiError.badRequest(
+          'Введены некорректные данные, невозможно обновить данные пользователя, проверьте корректность указанных имени и описания.'
+        );
       }
-      if (err.message === 'NotFound') {
-        return res.status(ERR_NOT_FOUND).send({
-          message: 'Запрашиваемый пользователь не найден (некорректный id)',
-        });
-      }
-      return res
-        .status(ERR_DEFAULT)
-        .send({ message: 'Что-то пошло не так...' });
-    });
+      throw ApiError.iternal();
+    })
+    .catch(next);
 };
 
-const updateUserAvatar = (req, res) => {
+const updateUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(
     req.user._id,
@@ -144,28 +121,23 @@ const updateUserAvatar = (req, res) => {
     }
   )
     .orFail(() => {
-      throw new Error('NotFound');
+      throw ApiError.notFound(
+        'Запрашиваемый пользователь не найден (некорректный id)'
+      );
     })
     .then((user) => res.status(200).send({ avatar: user.avatar }))
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
-        return res.status(ERR_BAD_REQUEST).send({
-          message:
-            'Введены некорректные данные, невозможно обновить аватар, проверьте корректность указанной ссылки.',
-        });
+        throw ApiError.badRequest(
+          'Введены некорректные данные, невозможно обновить аватар, проверьте корректность указанной ссылки.'
+        );
       }
-      if (err.message === 'NotFound') {
-        return res.status(ERR_NOT_FOUND).send({
-          message: 'Запрашиваемый пользователь не найден (некорректный id)',
-        });
-      }
-      return res
-        .status(ERR_DEFAULT)
-        .send({ message: 'Что-то пошло не так...' });
-    });
+      throw ApiError.iternal();
+    })
+    .catch(next);
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
   User.findUserByCredentials(email, password)
     .then((user) => {
@@ -181,9 +153,10 @@ const login = (req, res) => {
         .status(200)
         .send({ message: 'Авторизация прошла успешно!' });
     })
-    .catch((err) => {
-      res.status(401).send({ message: err.message });
-    });
+    .catch(() => {
+      throw ApiError.unauthorized();
+    })
+    .catch(next);
 };
 
 module.exports = {

@@ -3,6 +3,7 @@ const mongoose = require('mongoose');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
+const { errorHandler } = require('./middlewars/errorHandler');
 // const { auth } = require('./middlewars/auth');
 
 const { PORT = 3000 } = process.env;
@@ -16,9 +17,7 @@ app.post('/signup', createUser);
 // app.use(auth);
 app.use(userRouter);
 app.use(cardRouter);
-app.use((req, res) => {
-  res.status(404).send({ message: 'Запрашиваемый ресурс не найден' });
-});
+app.use(errorHandler);
 
 const start = async () => {
   await mongoose.connect('mongodb://localhost:27017/mestodb');
