@@ -11,7 +11,7 @@ const isValidId = Joi.custom((value) => {
 });
 
 const validateURL = (value) => {
-  if (isURL(value, { require_protocol: true })) {
+  if (!isURL(value, { require_protocol: true })) {
     throw new CelebrateError('Неправильный формат ссылки');
   }
   return value;
@@ -25,9 +25,9 @@ const validateDataBaseId = celebrate({
 
 const validateUser = celebrate({
   body: Joi.object().keys({
-    name: Joi.string().min(2).max(30).required(),
-    about: Joi.string().min(2).max(30).required(),
-    avatar: Joi.string().custom(validateURL).required(),
+    name: Joi.string().min(2).max(30),
+    about: Joi.string().min(2).max(30),
+    avatar: Joi.string().custom(validateURL),
     email: Joi.string().email().required(),
     password: Joi.string().required(),
   }),
