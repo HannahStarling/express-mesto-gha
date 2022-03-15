@@ -13,8 +13,8 @@ const { PORT = 3000 } = process.env;
 
 const app = express();
 app.use(cookieParser());
-app.use(errors());
-app.use(express.json()); /* bodyParser in framework */
+app.use(errors()); // celebrate error handler
+app.use(express.json()); // bodyParser in framework
 
 app.post('/signin', validateUser, login);
 app.post('/signup', validateUser, createUser);
