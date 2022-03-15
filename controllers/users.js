@@ -53,29 +53,27 @@ const createUser = (req, res, next) => {
 
   bcrypt
     .hash(password, 10)
-    .then((hash) => {
-      User.create({
-        name,
-        about,
-        avatar,
-        email,
-        password: hash,
-      }).then((user) => {
-        res.status(200).send({
-          name: user.name,
-          about: user.about,
-          avatar: user.avatar,
-          _id: user._id,
-        });
+    .then((hash) => User.create({
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }).then((user) => {
+      res.status(200).send({
+        name: user.name,
+        about: user.about,
+        avatar: user.avatar,
+        _id: user._id,
       });
-    })
+    }))
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
         throw ApiError.badRequest(
           'Введены некорректные данные, невозможно создать пользователя, проверьте имя, описание и аватар на валидность.',
         );
       }
-      if (err.name === 'MongoError' && err.code === 11000) {
+      if (err.code === 11000) {
         throw ApiError.conflict('Пользователь уже зарегестрирован.');
       }
       throw ApiError.iternal();
