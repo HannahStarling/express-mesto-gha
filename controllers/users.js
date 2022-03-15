@@ -16,7 +16,7 @@ const getUser = (req, res, next) => {
   User.findById(req.params.id)
     .orFail(() => {
       throw ApiError.notFound(
-        'Запрашиваемый пользователь не найден (некорректный id)'
+        'Запрашиваемый пользователь не найден (некорректный id)',
       );
     })
     .then((user) => res.status(200).send(user))
@@ -33,7 +33,7 @@ const getCurrentUser = (req, res, next) => {
   User.findById(req.user._id)
     .orFail(() => {
       throw ApiError.notFound(
-        'Запрашиваемый пользователь не найден (некорректный id)'
+        'Запрашиваемый пользователь не найден (некорректный id)',
       );
     })
     .then((user) => res.status(200).send(user))
@@ -47,7 +47,9 @@ const getCurrentUser = (req, res, next) => {
 };
 
 const createUser = (req, res, next) => {
-  const { name, about, avatar, email, password } = req.body;
+  const {
+    name, about, avatar, email, password,
+  } = req.body;
 
   bcrypt
     .hash(password, 10)
@@ -70,7 +72,7 @@ const createUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
         throw ApiError.badRequest(
-          'Введены некорректные данные, невозможно создать пользователя, проверьте имя, описание и аватар на валидность.'
+          'Введены некорректные данные, невозможно создать пользователя, проверьте имя, описание и аватар на валидность.',
         );
       }
       if (err.name === 'MongoError' && err.code === 11000) {
@@ -89,11 +91,11 @@ const updateUser = (req, res, next) => {
     {
       new: true,
       runValidators: true,
-    }
+    },
   )
     .orFail(() => {
       throw ApiError.notFound(
-        'Запрашиваемый пользователь не найден (некорректный id)'
+        'Запрашиваемый пользователь не найден (некорректный id)',
       );
     })
     .then((user) => {
@@ -102,7 +104,7 @@ const updateUser = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
         throw ApiError.badRequest(
-          'Введены некорректные данные, невозможно обновить данные пользователя, проверьте корректность указанных имени и описания.'
+          'Введены некорректные данные, невозможно обновить данные пользователя, проверьте корректность указанных имени и описания.',
         );
       }
       throw ApiError.iternal();
@@ -118,18 +120,18 @@ const updateUserAvatar = (req, res, next) => {
     {
       new: true,
       runValidators: true,
-    }
+    },
   )
     .orFail(() => {
       throw ApiError.notFound(
-        'Запрашиваемый пользователь не найден (некорректный id)'
+        'Запрашиваемый пользователь не найден (некорректный id)',
       );
     })
     .then((user) => res.status(200).send({ avatar: user.avatar }))
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
         throw ApiError.badRequest(
-          'Введены некорректные данные, невозможно обновить аватар, проверьте корректность указанной ссылки.'
+          'Введены некорректные данные, невозможно обновить аватар, проверьте корректность указанной ссылки.',
         );
       }
       throw ApiError.iternal();

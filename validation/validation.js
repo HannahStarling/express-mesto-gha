@@ -1,9 +1,8 @@
 const { celebrate, Joi, CelebrateError } = require('celebrate');
 const { isValidObjectId } = require('mongoose');
 
-const avatarLinkValidator =
-  // eslint-disable-next-line no-useless-escape
-  /https*:\/\/w{0,3}\.*[\w\d\-\-\.\~\:\/\?\#\[\]\@\!\$\&\'\(\)\*\+\,\;\=]{1,}#*/m;
+// eslint-disable-next-line no-useless-escape
+const avatarLinkValidator = /https*:\/\/w{0,3}\.*[\w\d\-\-\.\~\:\/\?\#\[\]\@\!\$\&\'\(\)\*\+\,\;\=]{1,}#*/m;
 
 const isValidId = Joi.custom((value) => {
   if (isValidObjectId(value)) return value;

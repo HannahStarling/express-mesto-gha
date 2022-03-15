@@ -27,7 +27,7 @@ const deleteCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError') {
         throw ApiError.badRequest(
-          'Введены некорректные данные, невозможно удалить карточку.'
+          'Введены некорректные данные, невозможно удалить карточку.',
         );
       }
       throw ApiError.iternal();
@@ -51,7 +51,7 @@ const createCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
         throw ApiError.badRequest(
-          'Введены некорректные данные, невозможно создать карточку, проверьте название и ссылку.'
+          'Введены некорректные данные, невозможно создать карточку, проверьте название и ссылку.',
         );
       }
       throw ApiError.iternal();
@@ -63,7 +63,7 @@ const likeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.id,
     { $addToSet: { likes: req.user._id } },
-    { new: true }
+    { new: true },
   )
     .orFail(() => {
       throw ApiError.notFound('Карточка с указанным id не существует');
@@ -72,7 +72,7 @@ const likeCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
         throw ApiError.badRequest(
-          'Введены некорректные данные, невозможно поставить лайк до устранения ошибки.'
+          'Введены некорректные данные, невозможно поставить лайк до устранения ошибки.',
         );
       }
       throw ApiError.iternal();
@@ -84,7 +84,7 @@ const dislikeCard = (req, res, next) => {
   Card.findByIdAndUpdate(
     req.params.id,
     { $pull: { likes: req.user._id } },
-    { new: true }
+    { new: true },
   )
     .orFail(() => {
       throw ApiError.notFound('Карточка с указанным id не существует');
@@ -93,7 +93,7 @@ const dislikeCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'CastError' || err.name === 'ValidationError') {
         throw ApiError.badRequest(
-          'Введены некорректные данные, невозможно убрать лайк до устранения ошибки.'
+          'Введены некорректные данные, невозможно убрать лайк до устранения ошибки.',
         );
       }
       throw ApiError.iternal();
