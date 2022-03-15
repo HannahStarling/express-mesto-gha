@@ -1,6 +1,7 @@
 const express = require('express');
 const mongoose = require('mongoose');
 const { errors } = require('celebrate');
+const cookieParser = require('cookie-parser');
 const userRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login, createUser } = require('./controllers/users');
@@ -11,6 +12,7 @@ const { auth } = require('./middlewars/auth');
 const { PORT = 3000 } = process.env;
 
 const app = express();
+app.use(cookieParser());
 app.use(errors());
 app.use(express.json()); /* bodyParser in framework */
 
