@@ -24,7 +24,7 @@ const getUser = (req, res, next) => {
       if (err.name === 'CastError') {
         throw ApiError.badRequest('Пользователь с указанным id не существует.');
       }
-      throw ApiError.iternal();
+      throw err;
     })
     .catch(next);
 };
@@ -41,7 +41,7 @@ const getCurrentUser = (req, res, next) => {
       if (err.name === 'CastError') {
         throw ApiError.badRequest('Что-то пошло не так...');
       }
-      throw ApiError.iternal();
+      throw err;
     })
     .catch(next);
 };
@@ -105,7 +105,7 @@ const updateUser = (req, res, next) => {
           'Введены некорректные данные, невозможно обновить данные пользователя, проверьте корректность указанных имени и описания.',
         );
       }
-      throw ApiError.iternal();
+      throw err;
     })
     .catch(next);
 };
@@ -132,7 +132,7 @@ const updateUserAvatar = (req, res, next) => {
           'Введены некорректные данные, невозможно обновить аватар, проверьте корректность указанной ссылки.',
         );
       }
-      throw ApiError.iternal();
+      throw err;
     })
     .catch(next);
 };

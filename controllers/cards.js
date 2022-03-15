@@ -30,7 +30,7 @@ const deleteCard = (req, res, next) => {
           'Введены некорректные данные, невозможно удалить карточку.',
         );
       }
-      throw ApiError.iternal();
+      throw err;
     })
     .catch(next);
 };
@@ -75,7 +75,7 @@ const likeCard = (req, res, next) => {
           'Введены некорректные данные, невозможно поставить лайк до устранения ошибки.',
         );
       }
-      throw ApiError.iternal();
+      throw err;
     })
     .catch(next);
 };
@@ -96,7 +96,7 @@ const dislikeCard = (req, res, next) => {
           'Введены некорректные данные, невозможно убрать лайк до устранения ошибки.',
         );
       }
-      throw ApiError.iternal();
+      throw err;
     })
     .catch(next);
 };
